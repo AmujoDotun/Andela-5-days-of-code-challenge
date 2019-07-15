@@ -165,18 +165,62 @@
       
       const detectCardType =({target})=>{
         
+        if(target.value.startsWith('4')){
+          document.querySelector('[data-credit-card]').classList.remove('is-mastercard');
+          document.querySelector('[data-credit-card]').classList.add('is-visa');
+          document.querySelector('[data-card-type]').src = supportedCards.visa;
+          return 'is-visa';
+          
+        }
+        else if(target.value.startsWith('5')){
+          document.querySelector('[data-credit-card]').classList.remove('is-visa');
+          document.querySelector('[data-credit-card]').classList.add('is-mastercard');
+          document.querySelector('[data-card-type]').src = supportedCards.mastercard;
+          return 'is-mastercard';
+        }
       };
       
       const validateCardExpiryDate= ({target}) =>{
-        
+        let isValid = expiryDateFormatIsValid(target);
+        //get the current date
+        const currentDate = new Date().getTime();
+        const fieldDate = new Date('07' + target.value).getTime();
+        //to check if field is valid or not
+        flagIfInvalid(target, isValid && fieldDate > current);
+        return isValid && fieldDate > current;
       };
       
       const validateCardHolderName =({target}) =>{
+        const holderName = target.value.split(' ');
+        if(holderName >2){
+          flagIfInValid(target, fasle);
+          return false;
+        }
+        flagIfInvalid(target, true);
+        return true;
+      };
+      
+      const validateCardNumber = () =>{
         
       };
       
-      const uiCanInteract = ()=>{
+      const uiCanInteract = () =>{
+        const firstInputDigit = document.querySelector('div[data-cc-digits]input:nth-child(1)');
+        const firstInputInfo = document.querySelector('div[data-cc-info]input:nth-child(1)');
+        const secondInputInfo = document.querySelector('div[data-cc-info]input:nth-child(2)');
         
+        //adding event listerner
+        
+        firstInputDigit.addEventListener('blur', detectCardType(target));
+        firstInputInfo.addEventListener('blur', validateCardHolderName(target));
+        secondInputInfo.addEventListener('blur', validateCardExpiryDate(target));
+        
+        //select the btn
+        const dataPayBtn = document.querySelector('button[data-pay-btn]');
+        dataPayBtn.addEventListener('click', validateCardNumber);
+        
+        //adding focus to the first input
+        firstInput.focus();
       };
       
       const displayCartTotal = ({results})=>{
@@ -185,9 +229,9 @@
         appState.items = itemsInCart;
         appState.country = buyerCountry;
         appState.bill = itemsInCart.reduce((p,q)=>{p["price"]*q["qty"]})
-        appState.billFormated = formatAsMoney(appState.bill, appState.country);
+        appState.billFormatted = formatAsMoney(appState.bill, appState.country);
         dataBill = document.querySelector("span[data-bill]");
-        dataBill.textContent = appState.billFormated;
+        dataBill.textContent = appState.billFormatted;
         
         uiCanInteract();
         
